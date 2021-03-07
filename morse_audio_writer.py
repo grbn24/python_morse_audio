@@ -1,78 +1,77 @@
-import wavio
 import numpy as np
 import sys
+import wavio
 
-CODE = {' ': '_', 
-	"'": '.----.', 
-	'(': '-.--.-', 
-	')': '-.--.-', 
-	',': '--..--', 
-	'-': '-....-', 
-	'.': '.-.-.-', 
-	'/': '-..-.', 
-	'0': '-----', 
-	'1': '.----', 
-	'2': '..---', 
-	'3': '...--', 
-	'4': '....-', 
-	'5': '.....', 
-	'6': '-....', 
-	'7': '--...', 
-	'8': '---..', 
-	'9': '----.', 
-	':': '---...', 
-	';': '-.-.-.', 
-	'?': '..--..', 
-	'A': '.-', 
-	'B': '-...', 
-	'C': '-.-.', 
-	'D': '-..', 
-	'E': '.', 
-	'F': '..-.', 
-	'G': '--.', 
-	'H': '....', 
-	'I': '..', 
-	'J': '.---', 
-	'K': '-.-', 
-	'L': '.-..', 
-	'M': '--', 
-	'N': '-.', 
-	'O': '---', 
-	'P': '.--.', 
-	'Q': '--.-', 
-	'R': '.-.', 
-	'S': '...', 
-	'T': '-', 
-	'U': '..-', 
-	'V': '...-', 
-	'W': '.--', 
-	'X': '-..-', 
-	'Y': '-.--', 
-	'Z': '--..', 
+CODE = {' ': '_',
+	"'": '.----.',
+	'(': '-.--.-',
+	')': '-.--.-',
+	',': '--..--',
+	'-': '-....-',
+	'.': '.-.-.-',
+	'/': '-..-.',
+	'0': '-----',
+	'1': '.----',
+	'2': '..---',
+	'3': '...--',
+	'4': '....-',
+	'5': '.....',
+	'6': '-....',
+	'7': '--...',
+	'8': '---..',
+	'9': '----.',
+	':': '---...',
+	';': '-.-.-.',
+	'?': '..--..',
+	'A': '.-',
+	'B': '-...',
+	'C': '-.-.',
+	'D': '-..',
+	'E': '.',
+	'F': '..-.',
+	'G': '--.',
+	'H': '....',
+	'I': '..',
+	'J': '.---',
+	'K': '-.-',
+	'L': '.-..',
+	'M': '--',
+	'N': '-.',
+	'O': '---',
+	'P': '.--.',
+	'Q': '--.-',
+	'R': '.-.',
+	'S': '...',
+	'T': '-',
+	'U': '..-',
+	'V': '...-',
+	'W': '.--',
+	'X': '-..-',
+	'Y': '-.--',
+	'Z': '--..',
 	'_': '..--.-'}
- 
-def convertToMorseCode(sentence):
+
+def convert_to_morse_code(sentence, print_morse = False):
     sentence = sentence.upper()
-    encodedSentence = ""
+    encoded_sentence = ""
     for character in sentence:
         if character != " ":
-            encodedSentence += CODE[character] + " "
+            encoded_sentence += CODE[character] + " "
         else:
-            encodedSentence += "s" 
-    print(encodedSentence)
-    return encodedSentence
+            encoded_sentence += "/"
+    if print_morse:
+        print("Sentence in morse: " + encoded_sentence)
+    return encoded_sentence
 
-def convertMorseToAudio(morse):
+def convert_morse_to_audio(morse):
     morse = morse.replace(" ", "0 0 0 ")
-    morse = morse.replace("s", "0 0 0 0 0 0 0 ")
+    morse = morse.replace("/", "0 0 0 0 0 0 0 ")
     morse = morse.replace(".", "1 0 ")
     morse = morse.replace("-", "1 1 1 0 ")
-    out = np.fromstring(morse, sep=" ");
-    print(out)
+    out = np.fromstring(morse, sep=" ")
     return out
-    
 
-def writeMorseAudio(aud, filename = "0zin.wav"):
+def write_morse_audio(aud, filename = "0_sentence.wav"):
     dt = 0.5        # seconds per timeunit
     rate = 44100    # samples per second
     rep = round(rate*dt)
@@ -85,19 +84,18 @@ def writeMorseAudio(aud, filename = "0zin.wav"):
     x = np.multiply(x,aud)
     wavio.write(filename, x, rate, sampwidth=3)
 
-def mainfun(zin):
-    writeMorseAudio(convertMorseToAudio(convertToMorseCode(zin)))
-    woorden = zin.split(" ")
+def mainfun(sen):
+    write_morse_audio(convert_morse_to_audio(convert_to_morse_code(sen,print_morse=True)))
+    woorden = sen.split(" ")
     n = 1
     for w in woorden:
-        writeMorseAudio(convertMorseToAudio(convertToMorseCode(w)), filename=(str(n)+"_"+w+".wav"))
-        print(w)
+        write_morse_audio(convert_morse_to_audio(convert_to_morse_code(w)), filename=(str(n)+"_"+w+".wav"))
         n += 1
 
-zin = "Ruimte Fuifje Alle Welpen Welkom Zomer"
-if len(sys.argv) > 1:
-    zin_list = sys.argv[1:]
-    zin = " ".join(map(str,zin_list))
-    print(type(zin_list))
-mainfun(zin)
+if __name__ == "__main__":
+	sentence = "This is morse code"
+	if len(sys.argv) > 1:
+		s_list = sys.argv[1:]
+		sentence = " ".join(map(str,s_list))
+	mainfun(sentence)
     
